@@ -78,7 +78,7 @@ def save_to_csv(df, file_path='cleanedData.csv'):
     print(f"DataFrame saved to {file_path}")
 
 # Comprehensive pipeline function
-def pipeline(file_path):
+def cleaner(file_path):
     df = read_data(file_path)
     df = drop_duplicates(df)
     df = handle_missing_data(df)
@@ -89,10 +89,12 @@ def pipeline(file_path):
 
 # Main execution
 if __name__ == "__main__":
-    print('Hello! This is a data cleaner. Enter the file path of your file you want to clean:')
+    print('Hello! This is a data preprocessor to automate your routine data pre processing tasks. Enter the file path of your file you want to clean:')
     user_file = input("Enter file path: ")
-    final_df = pipeline(user_file)
+    final_df = cleaner(user_file)
+    print("Cleaned data is saved in cleanedData.csv in the current directory")
     print(final_df.head())
+    
 
 # If you want to provide separate function calls, the users can still call them individually:
 
