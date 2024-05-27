@@ -50,7 +50,8 @@ def handle_missing_data(df):
         ])
 
     df_cleaned = preprocessor.fit_transform(df)
-    df_cleaned = pd.DataFrame(df_cleaned, columns=numeric_features.tolist() + preprocessor.transformers_[1][1]['onehot'].get_feature_names(categorical_features).tolist())
+    df_cleaned = pd.DataFrame(df_cleaned)
+    # , columns=numeric_features.tolist() + preprocessor.transformers_[1][1]['onehot'].get_feature_names(categorical_features).tolist()
 
     return df_cleaned
 
@@ -69,6 +70,13 @@ def handle_outliers_IQR(df):
 def scale_features(df):
     scaler = StandardScaler()
     numeric_features = df.select_dtypes(include=['number']).columns
+    
+    if len(numeric_features) == 0:
+        # No numeric columns to scale
+        print("No numeric features found to scale.")
+        return df
+    
+    # Fit and transform the numeric features
     df[numeric_features] = scaler.fit_transform(df[numeric_features])
     return df
 
@@ -84,13 +92,14 @@ def cleaner(file_path):
     df = handle_missing_data(df)
     df = handle_outliers_IQR(df)
     df = scale_features(df)
-    save_to_csv(df)
+    #save_to_csv(df)
     return df
 
 # Main execution
 if __name__ == "__main__":
     print('Hello! This is a data preprocessor to automate your routine data pre processing tasks. Enter the file path of your file you want to clean:')
     user_file = input("Enter file path: ")
+    print(pd.read_csv(user_file).head())
     final_df = cleaner(user_file)
     print("Cleaned data is saved in cleanedData.csv in the current directory")
     print(final_df.head())
