@@ -100,44 +100,17 @@ def save_to_csv(df, file_path='cleanedDataFile.csv'):
     df.to_csv(file_path, index=False)
     print(f"DataFrame saved to {file_path}")
 
-def cleaner(df_temp):
-    # Placeholder DataFrame to identify feature types    
-    if not df_temp.empty:
-        numeric_features = df_temp.select_dtypes(include=['number']).columns.tolist()
-        categorical_features = df_temp.select_dtypes(include=['object']).columns.tolist()
-    else:
-        numeric_features = []
-        categorical_features = []
+def cleaner(df):
+    df = drop_duplicates(df)
+    df = handle_missing_values(df)
+    df = label_encode_dataframe(df)
+    df = handle_outliers_IQR(df)
+    df = remove_highly_correlated_features(df)
+    save_to_csv(df)
+    return df
+    
+     
 
-    # Pipeline for numeric features
-    numeric_pipeline = Pipeline(steps=[
-        ('impute', SimpleImputer(strategy='mean')),
-        ('scale', StandardScaler())
-    ])
-    outlier_transformer = handle_outliers_IQR(df_temp)
-
-    # Pipeline for categorical features
-    categorical_pipeline = Pipeline(steps=[
-        ('impute', SimpleImputer(strategy='most_frequent')),
-        ('one_hot_encode', OneHotEncoder(handle_unknown='ignore'))
-    ])
-
-    # Combine the pipelines into a ColumnTransformer
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('numeric', numeric_pipeline, numeric_features),
-            ('outlier_handler', outlier_transformer)
-            ('categorical', categorical_pipeline, categorical_features)
-        ]
-    )
-
-    # Full pipeline
-    full_pipeline = Pipeline(steps=[
-        ('drop_duplicates', 'passthrough'),  # Placeholder, handle before pipeline
-        ('preprocessor', preprocessor),
-    ])
-
-    return pd.DataFrame(full_pipeline.fit_transform(df_temp))
 
 
 if __name__ == "__main__":
@@ -145,11 +118,7 @@ if __name__ == "__main__":
     user_file = input("Enter file path: ")
     df= read_data(user_file)
     print(df.head())
-    df = drop_duplicates(df)
-    df = handle_missing_values(df)
-    df = label_encode_dataframe(df)
-    df = handle_outliers_IQR(df)
-    df = remove_highly_correlated_features(df)
+    df= cleaner(df)
     print("Cleaned data is saved in cleanedData.csv in the current directory")
     print(df.head())
     
